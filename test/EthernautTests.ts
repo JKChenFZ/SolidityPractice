@@ -181,3 +181,34 @@ describe("King", function () {
     expect(await deployedChallenge._king()).to.be.eq(deployedSolution.address);
   });
 });
+
+describe("Reentrance", function () {
+  it("Solution", async function () {
+    const challenge = await ethers.getContractFactory("Reentrance");
+    const deployedChallenge = await challenge.deploy();
+    await deployedChallenge.deployed();
+
+    const burnDonation = await deployedChallenge.donate(
+      ethers.constants.AddressZero,
+      {
+        value: ethers.utils.parseEther("1"),
+      }
+    );
+    await burnDonation.wait();
+
+    const solution = await ethers.getContractFactory("ReentranceSolution");
+    const deployedSolution = await solution.deploy(deployedChallenge.address);
+    await deployedSolution.deployed();
+
+    const hackTxn = await deployedSolution.hack({
+      value: ethers.utils.parseEther("1"),
+    });
+    await hackTxn.wait();
+
+    expect(
+      (await ethers.provider.getBalance(deployedChallenge.address))
+        .add(await ethers.provider.getBalance(deployedSolution.address))
+        .eq(ethers.constants.Zero)
+    ).to.be.eq(true);
+  });
+});
