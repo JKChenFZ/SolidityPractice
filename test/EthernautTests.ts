@@ -212,3 +212,20 @@ describe("Reentrance", function () {
     ).to.be.eq(true);
   });
 });
+
+describe("Elevator", function () {
+  it("Solution", async function () {
+    const challenge = await ethers.getContractFactory("Elevator");
+    const deployedChallenge = await challenge.deploy();
+    await deployedChallenge.deployed();
+
+    const solution = await ethers.getContractFactory("ElevatorSolution");
+    const deployedSolution = await solution.deploy();
+    await deployedSolution.deployed();
+
+    const hackTxn = await deployedSolution.hack(deployedChallenge.address);
+    await hackTxn.wait();
+
+    expect(await deployedChallenge.top()).to.be.eq(true);
+  });
+});
