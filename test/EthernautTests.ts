@@ -157,3 +157,27 @@ describe("Vault", function () {
     expect(await deployedChallenge.locked()).to.be.eq(false);
   });
 });
+
+describe("King", function () {
+  it("Solution", async function () {
+    const challenge = await ethers.getContractFactory("King");
+    const deployedChallenge = await challenge.deploy();
+    await deployedChallenge.deployed();
+
+    const solution = await ethers.getContractFactory("KingSolution");
+    const deployedSolution = await solution.deploy(deployedChallenge.address, {
+      value: ethers.utils.parseEther("0.000001"),
+    });
+    await deployedSolution.deployed();
+
+    const signer = (await ethers.getSigners())[0];
+    const verifyTxn = signer.sendTransaction({
+      from: signer.address,
+      to: deployedChallenge.address,
+      value: ethers.utils.parseEther("1"),
+    });
+    await expect(verifyTxn).to.be.revertedWith("Not giving up");
+
+    expect(await deployedChallenge._king()).to.be.eq(deployedSolution.address);
+  });
+});
