@@ -245,6 +245,14 @@ describe("Privacy", function () {
     //     await ethers.provider.getStorageAt(deployedChallenge.address, i)
     //   );
     // }
+    // console.log(ethers.utils.formatBytes32String("1"));
+    // console.log(
+    //   await deployedChallenge.look1([
+    //     ethers.utils.formatBytes32String("1"),
+    //     ethers.utils.formatBytes32String("1"),
+    //     ethers.utils.formatBytes32String("1"),
+    //   ])
+    // );
 
     const unlockTxn = await deployedChallenge.unlock(
       (
@@ -252,5 +260,17 @@ describe("Privacy", function () {
       ).substring(0, 2 + 32)
     );
     await unlockTxn.wait();
+  });
+});
+
+describe("GatekeeperTwo", function () {
+  it("Solution", async function () {
+    const challenge = await ethers.getContractFactory("GatekeeperTwo");
+    const deployedChallenge = await challenge.deploy();
+    await deployedChallenge.deployed();
+
+    const solution = await ethers.getContractFactory("GatekeeperTwoSolution");
+    const deployedSolution = await solution.deploy(deployedChallenge.address);
+    await deployedSolution.deployed();
   });
 });

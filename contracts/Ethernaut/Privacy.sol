@@ -13,7 +13,11 @@ contract Privacy {
   constructor(bytes32[3] memory _data) public {
     data = _data;
   }
-  
+
+  function look1(bytes32[3] calldata _data) external pure returns (bytes16) {
+    return bytes16(_data[2]);
+  }
+
   function unlock(bytes16 _key) public {
     require(_key == bytes16(data[2]));
     locked = false;
