@@ -31,9 +31,9 @@ contract GatekeeperOne {
 }
 
 contract GatekeeperOneSolution {
-    function solve(address _challenge, bytes8 _gateKey) external {
+    function solve(address _challenge, bytes8 _gateKey, uint256 _gasAmount) external {
         GatekeeperOne challenge = GatekeeperOne(_challenge);
-        bool res = challenge.enter(_gateKey);
+        bool res = challenge.enter{gas: _gasAmount}(_gateKey);
 
         require(res, "did not solve");
     }
