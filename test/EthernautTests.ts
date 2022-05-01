@@ -299,3 +299,29 @@ describe("NaughtCoin", function () {
     expect(finalBalance.isZero()).to.equal(true);
   });
 });
+
+describe("Preservation", function () {
+  it("Solution", async function () {
+    const [owner, player] = await ethers.getSigners();
+    const library = await ethers.getContractFactory("LibraryContract");
+    const deployedlibrary = await library.deploy();
+    await deployedlibrary.deployed();
+
+    const challenge = await ethers.getContractFactory("Preservation", owner);
+    const deployedChallenge = await challenge.deploy(
+      deployedlibrary.address,
+      deployedlibrary.address
+    );
+    await deployedChallenge.deployed();
+
+    const solution = await ethers.getContractFactory("PreservationSolution");
+    const deployedSolution = await solution.deploy();
+    await deployedSolution.deployed();
+
+    const solveTxn = await deployedSolution
+      .connect(player)
+      .solve(deployedChallenge.address);
+    await solveTxn.wait();
+    expect(await deployedChallenge.owner()).to.equal(player.address);
+  });
+});
