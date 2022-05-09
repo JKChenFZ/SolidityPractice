@@ -325,3 +325,55 @@ describe("Preservation", function () {
     expect(await deployedChallenge.owner()).to.equal(player.address);
   });
 });
+
+describe("AlienCodex", function () {
+  it("Solution", async function () {
+    const [owner, player] = await ethers.getSigners();
+    const challenge = await ethers.getContractFactory("AlienCodex");
+    const deployedChallenge = await challenge.deploy();
+    await deployedChallenge.deployed();
+    expect(await deployedChallenge.owner()).to.equal(owner.address);
+
+    const solution = await ethers.getContractFactory("AlienCodexSolution");
+    const deployedSolution = await solution
+      .connect(player)
+      .deploy(deployedChallenge.address);
+    await deployedSolution.deployed();
+
+    expect(await deployedChallenge.owner()).to.equal(player.address);
+  });
+});
+
+describe("Denial", function () {
+  it("Solution", async function () {
+    const challenge = await ethers.getContractFactory("Denial");
+    const deployedChallenge = await challenge.deploy();
+    await deployedChallenge.deployed();
+
+    const solution = await ethers.getContractFactory("DenialSolution");
+    const deployedSolution = await solution.deploy(deployedChallenge.address);
+    await deployedSolution.deployed();
+
+    const withdrawTxn = await deployedChallenge.withdraw({
+      gasLimit: ethers.BigNumber.from("1000000"),
+    });
+    await withdrawTxn.wait();
+  });
+});
+
+describe("Shop", function () {
+  it("Solution", async function () {
+    const challenge = await ethers.getContractFactory("Shop");
+    const deployedChallenge = await challenge.deploy();
+    await deployedChallenge.deployed();
+
+    const solution = await ethers.getContractFactory("ShopSolution");
+    const deployedSolution = await solution.deploy();
+    await deployedSolution.deployed();
+
+    const solveTxn = await deployedSolution.solve(deployedChallenge.address);
+    await solveTxn.wait();
+
+    expect(await deployedChallenge.isSold()).to.equal(true);
+  });
+});
